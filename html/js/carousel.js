@@ -72,6 +72,36 @@ carousal.prototype = {
             $(this.numberofpages).append('<a href="javascript:void(0)">'+i+'</a>');
         }
     },
+    scrollHideAndShowPagination: function() {
+        var self = this;
+        console.log("In Function", self.currentPage, self.totalPages);
+        if(self.currentPage >= self.totalPages){
+            $(self.nextButton+" img").hide();
+            $(self.previousButton+" img").show();
+        } else if(self.currentPage <= 1){
+            $(self.previousButton+" img").hide();
+            $(self.nextButton+" img").show();
+        } else if(self.currentPage > 1){
+            $(self.previousButton+" img").show();
+            $(self.nextButton+" img").show();
+        }
+    },
+
+    scrollHideAndShowButtons:function(){
+        var self = this;
+        if(self.currentPage == 1) {
+            $(self.nextButton+" img").show();
+            $(self.previousButton+" img").hide();
+        }
+        if(self.currentPage > 1 && self.currentPage < self.totalPages){
+            $(self.nextButton+" img").show();
+            $(self.previousButton+" img").show();
+        }
+        if(self.currentPage == self.totalPages) {
+            $(self.nextButton+" img").hide();
+            $(self.previousButton+" img").show();
+        }
+    },
 
     //bindEvents Function
     bindEvents: function() {
@@ -97,16 +127,7 @@ carousal.prototype = {
                     },500,function(){
                         //the callback function is called after finishing animation to show or hide the left and right 
                         //arrows according to user click
-                        if(self.currentPage >= self.totalPages){
-                            $(self.nextButton+" img").hide();
-                            $(self.previousButton+" img").show();
-                        } else if(self.currentPage <= 1){
-                            $(self.previousButton+" img").hide();
-                            $(self.nextButton+" img").show();
-                        } else if(self.currentPage > 1){
-                            $(self.previousButton+" img").show();
-                            $(self.nextButton+" img").show();
-                        }
+                        self.scrollHideAndShowPagination();
                     });
                 }
                 //if Modulus is not equal to zero then this loop will execute i.e for images left after dividing it
@@ -120,16 +141,7 @@ carousal.prototype = {
                     },500,function(){
                         //the callback function is called after finishing animation to show or hide the left and right 
                         //arrows according to user click
-                        if(self.currentPage >= self.totalPages){
-                            $(self.nextButton+" img").hide();
-                            $(self.previousButton+" img").show();
-                        } else if(self.currentPage <= 1){
-                            $(self.previousButton+" img").hide();
-                            $(self.nextButton+" img").show();
-                        } else if(self.currentPage > 1){
-                            $(self.previousButton+" img").show();
-                            $(self.nextButton+" img").show();
-                        }
+                        self.scrollHideAndShowPagination();
                     });
                 } else {
                     $(self.container).animate({
@@ -137,16 +149,7 @@ carousal.prototype = {
                     },500,function(){
                         //the callback function is called after finishing animation to show or hide the left and right 
                         //arrows according to user click
-                        if(self.currentPage >= self.totalPages){
-                            $(self.nextButton+" img").hide();
-                            $(self.previousButton+" img").show();
-                        } else if(self.currentPage <= 1){
-                            $(self.previousButton+" img").hide();
-                            $(self.nextButton+" img").show();
-                        } else if(self.currentPage > 1){
-                            $(self.previousButton+" img").show();
-                            $(self.nextButton+" img").show();
-                        }
+                        self.scrollHideAndShowPagination();
                     });
                 } 
             }
@@ -157,27 +160,16 @@ carousal.prototype = {
             self.currentPage++;
             //if Modulus is zero i.e if we divide number of images to move by the number of images to show in 
             //one page then if remainder is zero then this loop will execute otherwise else part will execute
-            if( self.totalPagesMod == 0){
+            if(!self.totalPagesMod){
                 if(self.currentPage <= self.totalPages ){
                     $(self.container).animate({
                         'left': "-="+self.eachLiWidth*self.numberOfImageMove
                     },500,function() {
                         //Callback function will execute after finishing animation.
-                        if(self.currentPage == 1) {
-                            $(self.nextButton+" img").show();
-                            $(self.previousButton+" img").hide();
-                        }
-                        if(self.currentPage > 1 && self.currentPage < self.totalPages){
-                            $(self.nextButton+" img").show();
-                            $(self.previousButton+" img").show();
-                        }
-                        if(self.currentPage == self.totalPages) {
-                            $(self.nextButton+" img").hide();
-                            $(self.previousButton+" img").show();
-                        }
+                        self.scrollHideAndShowButtons();
                     }); 
                 }
-            } else if(self.totalPagesMod != 0) {
+            } else {
                 //if value of the page clicked i.e current page is less than the value of the total pages then
                 //this will execute otherwise the else part will execute
                 if(self.currentPage < self.totalPages ){
@@ -185,36 +177,14 @@ carousal.prototype = {
                         'left': "-="+self.eachLiWidth*self.numberOfImageMove
                     },500,function() {
                         //Callback function will execute after finishing animation.
-                        if(self.currentPage == 1) {
-                            $(self.nextButton+" img").show();
-                            $(self.previousButton+" img").hide();
-                        }
-                        if(self.currentPage > 1 && self.currentPage < self.totalPages){
-                            $(self.nextButton+" img").show();
-                            $(self.previousButton+" img").show();
-                        }
-                        if(self.currentPage == self.totalPages) {
-                            $(self.nextButton+" img").hide();
-                            $(self.previousButton+" img").show();
-                        }
+                         self.scrollHideAndShowButtons();
                     }); 
                 }else{
                     $(self.container).animate({
                         'left': "-="+self.eachLiWidth*self.totalPagesMod
                     },500,function() {
                         //Callback function will execute after finishing animation.
-                        if(self.currentPage == 1) {
-                            $(self.nextButton+" img").show();
-                            $(self.previousButton+" img").hide();
-                        }
-                        if(self.currentPage > 1 && self.currentPage < self.totalPages ){
-                            $(self.nextButton+" img").show();
-                            $(self.previousButton+" img").show();
-                        }
-                        if(self.currentPage == self.totalPages) {
-                            $(self.nextButton+" img").hide();
-                            $(self.previousButton+" img").show();
-                        }
+                         self.scrollHideAndShowButtons();
                     });    
                 }
             }
@@ -224,71 +194,41 @@ carousal.prototype = {
         $(self.previousButton+" img").click(function(){
             //if Modulus is zero i.e if we divide number of images to move by the number of images to show in 
             //one page then if remainder is zero then this loop will execute otherwise else part will execute
-            if(self.totalPagesMod == 0){
+            if(!self.totalPagesMod){
                 if(self.currentPage <= self.totalPages){
                     self.currentPage--;
                     $(self.container).animate({
                         'left':"+="+self.eachLiWidth*self.numberOfImageMove
                     },500,function() {
                         //Callback function will execute after finishing animation.
-                        console.log("self.currentPage =",self.currentPage)
-                        if(self.currentPage == 1) {
-                            $(self.nextButton+" img").show();
-                            $(self.previousButton+" img").hide();
-                        }
-                        if(self.currentPage > 1 && self.currentPage < self.totalPages ){
-                            $(self.nextButton+" img").show();
-                            $(self.previousButton+" img").show();
-                        }
-                        if(self.currentPage == self.totalPages) {
-                            $(self.nextButton+" img").hide();
-                            $(self.previousButton+" img").show();
-                        }
+                        self.scrollHideAndShowButtons();
                     });
                 }
-            } else if(self.totalPagesMod !=0) {
+            } else {
                 //if value of the page clicked i.e current page is less than the value of the total pages then
                 //this will execute otherwise the else part will execute
-                if(self.currentPage < self.totalPages){
+                if(self.currentPage > 2){
                     self.currentPage--;
+                    console.log("self.currentPage ",self.currentPage);
                     $(self.container).animate({
                         'left':"+="+self.eachLiWidth*self.numberOfImageMove
                     },500,function() {
                         //Callback function will execute after finishing animation.
                         console.log("self.currentPage =",self.currentPage)
-                        if(self.currentPage == 1) {
-                            $(self.nextButton+" img").show();
-                            $(self.previousButton+" img").hide();
-                        }
-                        if(self.currentPage > 1 && self.currentPage < self.totalPages ){
-                            $(self.nextButton+" img").show();
-                            $(self.previousButton+" img").show();
-                        }
-                        if(self.currentPage == self.totalPages) {
-                            $(self.nextButton+" img").hide();
-                            $(self.previousButton+" img").show();
-                        }
+                        self.scrollHideAndShowButtons();
                     });
                 } else {
                     self.currentPage--;
-                    $(self.container).animate({
-                        'left':"+="+self.eachLiWidth*self.totalPagesMod
-                    },500,function() {
+                    console.log("self.currentPage ",self.currentPage);
+                    if(self.currentPage == 1){
+                       $(self.container).animate({
+                            'left':"+="+self.eachLiWidth*self.totalPagesMod
+                        },500,function() {
                         //Callback function will execute after finishing animation.
-                        if(self.currentPage == 1) {
-                            $(self.nextButton+" img").show();
-                            $(self.previousButton+" img").hide();
-                        }
-                        if(self.currentPage > 1 && self.currentPage < self.totalPages ){
-                             $(self.nextButton+" img").show();
-                            $(self.previousButton+" img").show();
-                        }
-
-                        if(self.currentPage == self.totalPages) {
-                            $(self.nextButton+" img").hide();
-                            $(self.previousButton+" img").show();
-                        }
+                        self.scrollHideAndShowButtons();
                     }); 
+                    }
+                     
                 }
             }
         });
@@ -303,6 +243,6 @@ $(document).ready(function() {
         "previousButton": "#left_scroll",
         "numberofpages":"#numofpages",
         "isPagingEnabled": true,
-        "imagesPerPage":3
+        "imagesPerPage":1
     });
 });
