@@ -268,7 +268,7 @@ carousal.prototype = {
                     },500,function() {
                         //Callback function will execute after finishing animation.
                         console.log("self.currentPage =",self.currentPage)
-                        if(self.currentPage == 1) {
+                        /*if(self.currentPage == 1) {
                             $(self.nextButton+" img").show();
                             $(self.previousButton+" img").hide();
                         }
@@ -279,7 +279,8 @@ carousal.prototype = {
                         if(self.currentPage == self.totalPages) {
                             $(self.nextButton+" img").hide();
                             $(self.previousButton+" img").show();
-                        }
+                        }*/
+                        self.scrollHideAndShowButtons();
                     });
                 }
             } else {
@@ -292,7 +293,7 @@ carousal.prototype = {
                     },500,function() {
                         //Callback function will execute after finishing animation.
                         console.log("self.currentPage =",self.currentPage)
-                        if(self.currentPage == 1) {
+                        /*if(self.currentPage == 1) {
                             $(self.nextButton+" img").show();
                             $(self.previousButton+" img").hide();
                         }
@@ -303,7 +304,8 @@ carousal.prototype = {
                         if(self.currentPage == self.totalPages) {
                             $(self.nextButton+" img").hide();
                             $(self.previousButton+" img").show();
-                        }
+                        }*/
+                        self.scrollHideAndShowButtons();
                     });
                 } else {
                     self.currentPage--;
@@ -311,7 +313,7 @@ carousal.prototype = {
                         'left':"+="+self.eachLiWidth*self.totalPagesMod
                     },500,function() {
                         //Callback function will execute after finishing animation.
-                        if(self.currentPage == 1) {
+                        /*if(self.currentPage == 1) {
                             $(self.nextButton+" img").show();
                             $(self.previousButton+" img").hide();
                         }
@@ -323,7 +325,8 @@ carousal.prototype = {
                         if(self.currentPage == self.totalPages) {
                             $(self.nextButton+" img").hide();
                             $(self.previousButton+" img").show();
-                        }
+                        }*/
+                        self.scrollHideAndShowButtons();
                     }); 
                 }
             }
