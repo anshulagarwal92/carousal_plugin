@@ -72,9 +72,9 @@ carousal.prototype = {
             $(this.numberofpages).append('<a href="javascript:void(0)">'+i+'</a>');
         }
     },
+
     scrollHideAndShowPagination: function() {
         var self = this;
-        console.log("In Function", self.currentPage, self.totalPages);
         if(self.currentPage >= self.totalPages){
             $(self.nextButton+" img").hide();
             $(self.previousButton+" img").show();
@@ -103,11 +103,15 @@ carousal.prototype = {
         }
     },
 
-    //bindEvents Function
-    bindEvents: function() {
+    hidePreviousButtonUpFront:function(){
         var self = this;
-        
-        //paging click event
+        if(self.currentPage == 1){
+            $(self.previousButton+" img").hide();
+        }
+    },
+
+    pageClick :function(){
+        var self = this;
         $(this.numberofpages+" a").click(function(){
             //in currentPage the value is taken from html page that on which page numbr user has clicked
             self.currentPage = parseInt($(this).html());
@@ -155,12 +159,15 @@ carousal.prototype = {
             }
         });
 
-        //Next Button Click event
+    },
+
+    nextButtonClick :function(){
+        var self = this;
         $(self.nextButton+" img").click(function() {
             self.currentPage++;
             //if Modulus is zero i.e if we divide number of images to move by the number of images to show in 
             //one page then if remainder is zero then this loop will execute otherwise else part will execute
-            if(!self.totalPagesMod){
+            if( self.totalPagesMod == 0){
                 if(self.currentPage <= self.totalPages ){
                     $(self.container).animate({
                         'left': "-="+self.eachLiWidth*self.numberOfImageMove
@@ -169,7 +176,7 @@ carousal.prototype = {
                         self.scrollHideAndShowButtons();
                     }); 
                 }
-            } else {
+            } else if(self.totalPagesMod != 0) {
                 //if value of the page clicked i.e current page is less than the value of the total pages then
                 //this will execute otherwise the else part will execute
                 if(self.currentPage < self.totalPages ){
@@ -177,20 +184,22 @@ carousal.prototype = {
                         'left': "-="+self.eachLiWidth*self.numberOfImageMove
                     },500,function() {
                         //Callback function will execute after finishing animation.
-                         self.scrollHideAndShowButtons();
+                        self.scrollHideAndShowButtons();
                     }); 
                 }else{
                     $(self.container).animate({
                         'left': "-="+self.eachLiWidth*self.totalPagesMod
                     },500,function() {
                         //Callback function will execute after finishing animation.
-                         self.scrollHideAndShowButtons();
+                        self.scrollHideAndShowButtons();
                     });    
                 }
             }
         });
+    },
 
-        //Previous Button Click Event
+    previousButtonClick :function(){
+        var self = this;
         $(self.previousButton+" img").click(function(){
             //if Modulus is zero i.e if we divide number of images to move by the number of images to show in 
             //one page then if remainder is zero then this loop will execute otherwise else part will execute
@@ -201,37 +210,47 @@ carousal.prototype = {
                         'left':"+="+self.eachLiWidth*self.numberOfImageMove
                     },500,function() {
                         //Callback function will execute after finishing animation.
+                        console.log("self.currentPage =",self.currentPage)
                         self.scrollHideAndShowButtons();
                     });
                 }
             } else {
                 //if value of the page clicked i.e current page is less than the value of the total pages then
                 //this will execute otherwise the else part will execute
-                if(self.currentPage > 2){
+                if(self.currentPage < self.totalPages){
                     self.currentPage--;
-                    console.log("self.currentPage ",self.currentPage);
                     $(self.container).animate({
                         'left':"+="+self.eachLiWidth*self.numberOfImageMove
                     },500,function() {
                         //Callback function will execute after finishing animation.
-                        console.log("self.currentPage =",self.currentPage)
                         self.scrollHideAndShowButtons();
                     });
                 } else {
                     self.currentPage--;
-                    console.log("self.currentPage ",self.currentPage);
-                    if(self.currentPage == 1){
-                       $(self.container).animate({
-                            'left':"+="+self.eachLiWidth*self.totalPagesMod
-                        },500,function() {
+                    $(self.container).animate({
+                        'left':"+="+self.eachLiWidth*self.totalPagesMod
+                    },500,function() {
                         //Callback function will execute after finishing animation.
                         self.scrollHideAndShowButtons();
                     }); 
-                    }
-                     
                 }
             }
         });
+    },
+
+    //bindEvents Function
+    bindEvents: function() {
+        var self = this;
+        self.hidePreviousButtonUpFront();
+
+        //paging click event
+        self.pageClick();
+
+        //Next Button Click event
+        self.nextButtonClick();
+
+        //Previous Button Click Event
+        self.previousButtonClick();
     }
 };
 
@@ -243,6 +262,6 @@ $(document).ready(function() {
         "previousButton": "#left_scroll",
         "numberofpages":"#numofpages",
         "isPagingEnabled": true,
-        "imagesPerPage":1
+        "imagesPerPage":3
     });
 });

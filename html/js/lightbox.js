@@ -44,11 +44,6 @@ lightBox.prototype = {
             $(self.lightbox_container).fadeOut(300);
             $(self.lightbox_background).fadeOut(300);
         });
-        console.log("this.lightbox_container",this.lightbox_container);
-        $(this.lightbox_container).click(function(){
-            $(self.lightbox_container).fadeOut(300);
-            $(self.lightbox_background).fadeOut(300);
-        });
 
         /**
         * Close the lightbox when escape key is pressed 
