@@ -42,6 +42,10 @@ var carousal = function(kwargs) {
     }
     //Bind Events.
     this.bindEvents();
+
+    if(typeof kwargs.isAutoRotateEnabled !== "undefined" && kwargs.isAutoRotateEnabled) {
+        this.autoRotate();
+    }
 };
 
 /**
@@ -71,6 +75,16 @@ carousal.prototype = {
             //this is placing the number of pages in the anchor tag inside the div element in html
             $(this.numberofpages).append('<a href="javascript:void(0)">'+i+'</a>');
         }
+    },
+
+    autoRotate: function(){
+        //Autorotate code for carousel
+
+        var self = this;
+        this.myTimer = setInterval(function(){
+                self.nextButtonClick();
+                console.log("call"); 
+        }, 3000);
     },
 
     scrollHideAndShowPagination: function() {
@@ -113,7 +127,7 @@ carousal.prototype = {
     pageClick :function(){
         var self = this;
         $(this.numberofpages+" a").click(function(){
-            //in currentPage the value is taken from html page that on which page numbr user has clicked
+           //in currentPage the value is taken from html page that on which page numbr user has clicked
             self.currentPage = parseInt($(this).html());
             //here we are removing the class active from the anchor tag inside div element which has 
             //id numberofpages 
@@ -157,85 +171,80 @@ carousal.prototype = {
                     });
                 } 
             }
-        });
-
+        }); 
     },
 
     nextButtonClick :function(){
         var self = this;
-        $(self.nextButton+" img").click(function() {
-            self.currentPage++;
-            //if Modulus is zero i.e if we divide number of images to move by the number of images to show in 
-            //one page then if remainder is zero then this loop will execute otherwise else part will execute
-            if( self.totalPagesMod == 0){
-                if(self.currentPage <= self.totalPages ){
-                    $(self.container).animate({
-                        'left': "-="+self.eachLiWidth*self.numberOfImageMove
-                    },500,function() {
-                        //Callback function will execute after finishing animation.
-                        self.scrollHideAndShowButtons();
-                    }); 
-                }
-            } else if(self.totalPagesMod != 0) {
-                //if value of the page clicked i.e current page is less than the value of the total pages then
-                //this will execute otherwise the else part will execute
-                if(self.currentPage < self.totalPages ){
-                    $(self.container).animate({
-                        'left': "-="+self.eachLiWidth*self.numberOfImageMove
-                    },500,function() {
-                        //Callback function will execute after finishing animation.
-                        self.scrollHideAndShowButtons();
-                    }); 
-                }else{
-                    $(self.container).animate({
-                        'left': "-="+self.eachLiWidth*self.totalPagesMod
-                    },500,function() {
-                        //Callback function will execute after finishing animation.
-                        self.scrollHideAndShowButtons();
-                    });    
-                }
+        self.currentPage++;
+        //if Modulus is zero i.e if we divide number of images to move by the number of images to show in 
+        //one page then if remainder is zero then this loop will execute otherwise else part will execute
+        if( self.totalPagesMod == 0){
+            if(self.currentPage <= self.totalPages ){
+                $(self.container).animate({
+                    'left': "-="+self.eachLiWidth*self.numberOfImageMove
+                },500,function() {
+                    //Callback function will execute after finishing animation.
+                    self.scrollHideAndShowButtons();
+                }); 
             }
-        });
+        } else if(self.totalPagesMod != 0) {
+            //if value of the page clicked i.e current page is less than the value of the total pages then
+            //this will execute otherwise the else part will execute
+            if(self.currentPage < self.totalPages ){
+                $(self.container).animate({
+                    'left': "-="+self.eachLiWidth*self.numberOfImageMove
+                },500,function() {
+                    //Callback function will execute after finishing animation.
+                    self.scrollHideAndShowButtons();
+                }); 
+            }else{
+                $(self.container).animate({
+                    'left': "-="+self.eachLiWidth*self.totalPagesMod
+                },500,function() {
+                    //Callback function will execute after finishing animation.
+                    self.scrollHideAndShowButtons();
+                });    
+            }
+        }
     },
 
     previousButtonClick :function(){
         var self = this;
-        $(self.previousButton+" img").click(function(){
-            //if Modulus is zero i.e if we divide number of images to move by the number of images to show in 
-            //one page then if remainder is zero then this loop will execute otherwise else part will execute
-            if(!self.totalPagesMod){
-                if(self.currentPage <= self.totalPages){
-                    self.currentPage--;
-                    $(self.container).animate({
-                        'left':"+="+self.eachLiWidth*self.numberOfImageMove
-                    },500,function() {
-                        //Callback function will execute after finishing animation.
-                        console.log("self.currentPage =",self.currentPage)
-                        self.scrollHideAndShowButtons();
-                    });
-                }
-            } else {
-                //if value of the page clicked i.e current page is less than the value of the total pages then
-                //this will execute otherwise the else part will execute
-                if(self.currentPage < self.totalPages){
-                    self.currentPage--;
-                    $(self.container).animate({
-                        'left':"+="+self.eachLiWidth*self.numberOfImageMove
-                    },500,function() {
-                        //Callback function will execute after finishing animation.
-                        self.scrollHideAndShowButtons();
-                    });
-                } else {
-                    self.currentPage--;
-                    $(self.container).animate({
-                        'left':"+="+self.eachLiWidth*self.totalPagesMod
-                    },500,function() {
-                        //Callback function will execute after finishing animation.
-                        self.scrollHideAndShowButtons();
-                    }); 
-                }
+        //if Modulus is zero i.e if we divide number of images to move by the number of images to show in 
+        //one page then if remainder is zero then this loop will execute otherwise else part will execute
+        if(!self.totalPagesMod){
+            if(self.currentPage <= self.totalPages){
+                self.currentPage--;
+                $(self.container).animate({
+                    'left':"+="+self.eachLiWidth*self.numberOfImageMove
+                },500,function() {
+                    //Callback function will execute after finishing animation.
+                    console.log("self.currentPage =",self.currentPage)
+                    self.scrollHideAndShowButtons();
+                });
             }
-        });
+        } else {
+            //if value of the page clicked i.e current page is less than the value of the total pages then
+            //this will execute otherwise the else part will execute
+            if(self.currentPage < self.totalPages){
+                self.currentPage--;
+                $(self.container).animate({
+                    'left':"+="+self.eachLiWidth*self.numberOfImageMove
+                },500,function() {
+                    //Callback function will execute after finishing animation.
+                    self.scrollHideAndShowButtons();
+                });
+            } else {
+                self.currentPage--;
+                $(self.container).animate({
+                    'left':"+="+self.eachLiWidth*self.totalPagesMod
+                },500,function() {
+                //Callback function will execute after finishing animation.
+                    self.scrollHideAndShowButtons();
+                }); 
+            }
+        }
     },
 
     //bindEvents Function
@@ -247,10 +256,14 @@ carousal.prototype = {
         self.pageClick();
 
         //Next Button Click event
-        self.nextButtonClick();
+        $(self.nextButton+" img").click(function() {
+            self.nextButtonClick(); 
+        });
 
         //Previous Button Click Event
-        self.previousButtonClick();
+        $(self.previousButton+" img").click(function(){
+            self.previousButtonClick();
+        });
     }
 };
 
@@ -262,6 +275,7 @@ $(document).ready(function() {
         "previousButton": "#left_scroll",
         "numberofpages":"#numofpages",
         "isPagingEnabled": true,
-        "imagesPerPage":3
+        "imagesPerPage":3,
+        "isAutoRotateEnabled": false
     });
 });
