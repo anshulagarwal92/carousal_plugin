@@ -25,7 +25,8 @@ var carousal = function(kwargs) {
     //the width of each image is initialized as zero here
     this.eachLiWidth = 0;
     this.totalPagesMod = 0;
-    this.totalLis = 0; 
+    this.totalLis = 0;
+    this.myTimer = false;
     //the value of the current page is set to 1 
     this.currentPage = 1;
     //the value of the total pages is declared and defined as zero 
@@ -39,6 +40,7 @@ var carousal = function(kwargs) {
     //here we will check that the paging enabled or disabled
     if(typeof kwargs.isPagingEnabled !== "undefined" && kwargs.isPagingEnabled) {
         this.showPaging();
+        this.highlightPaging();
     }
     //Bind Events.
     this.bindEvents();
@@ -79,11 +81,15 @@ carousal.prototype = {
 
     autoRotate: function(){
         //Autorotate code for carousel
-
         var self = this;
-        this.myTimer = setInterval(function(){
-                self.nextButtonClick();
-                console.log("call"); 
+        self.currentPage = 2;
+        self.myTimer = setInterval(function(){
+            if(self.currentPage > self.totalPages) {
+                self.currentPage = 1;
+            }
+            self.moveToPage(self.currentPage, function() {
+                self.currentPage++;
+            });
         }, 3000);
     },
 
@@ -126,54 +132,73 @@ carousal.prototype = {
 
     pageClick :function(){
         var self = this;
-        $(this.numberofpages+" a").click(function(){
-           //in currentPage the value is taken from html page that on which page numbr user has clicked
-            self.currentPage = parseInt($(this).html());
-            //here we are removing the class active from the anchor tag inside div element which has 
-            //id numberofpages 
-            $(self.numberofpages+" a").removeClass('active');
-            //here we are adding the class active in the anchor tag inside div element which has id 
-            //numberofpages to make the page hightlighted when  it is clicked by user
-            $(this).addClass('active');
-            //animation is done when user clicks on some page number and it moves towards right or 
-            //left according to the user click and we have given the time of animation as 500 milliseconds
-            //it checks if Modulus is equal to zero then move the number of images as shown in carousel's one page
-            if(!self.totalPagesMod){
-                if(self.currentPage <= self.totalPages ){
-                    $(self.container).animate({
-                        'left':"-"+((self.eachLiWidth*self.numberOfImageMove*self.currentPage)-(self.eachLiWidth*self.numberOfImageMove))
-                    },500,function(){
-                        //the callback function is called after finishing animation to show or hide the left and right 
-                        //arrows according to user click
-                        self.scrollHideAndShowPagination();
-                    });
-                }
-                //if Modulus is not equal to zero then this loop will execute i.e for images left after dividing it
-                //by numberofImagemove
-            } else {
-                //if the value of the clicked page is less than the total number of page then this loop will execute
-                //otherwise else will execute if the value of clicked page is equal to the total number of pages 
-                if(self.currentPage < self.totalPages){
-                    $(self.container).animate({
-                        'left':"-"+((self.eachLiWidth*self.numberOfImageMove*self.currentPage)-(self.eachLiWidth*self.numberOfImageMove))
-                    },500,function(){
-                        //the callback function is called after finishing animation to show or hide the left and right 
-                        //arrows according to user click
-                        self.scrollHideAndShowPagination();
-                    });
-                } else {
-                    $(self.container).animate({
-                        'left':"-"+((self.eachLiWidth*self.numberOfImageMove*self.currentPage)-(self.eachLiWidth*self.numberOfImageMove)-((self.numberOfImageMove - self.totalPagesMod)*self.eachLiWidth))
-                    },500,function(){
-                        //the callback function is called after finishing animation to show or hide the left and right 
-                        //arrows according to user click
-                        self.scrollHideAndShowPagination();
-                    });
-                } 
+        $(this.numberofpages+" a").click(function() {
+            if(self.myTimer) {
+                clearInterval(self.myTimer);
             }
+            //in currentPage the value is taken from html page that on which page numbr user has clicked
+            self.currentPage = parseInt($(this).html());
+            self.moveToPage();
         }); 
     },
+    highlightPaging: function() {
+        var self = this;
+        $(this.numberofpages+" a").removeClass("active");
+        $(this.numberofpages+" a").each(function() {
+            if($(this).html().trim() == self.currentPage) {
+                $(this).addClass("active");
+            }
+        });
+    },
+    moveToPage: function(pageNo, callback) {
+        var self = this;
 
+        if(typeof pageNo !== "undefined") {
+            this.currentPage = pageNo;
+        }
+
+        if(!self.totalPagesMod){
+            if(self.currentPage <= self.totalPages ){
+                $(self.container).animate({
+                    'left':"-"+((self.eachLiWidth*self.numberOfImageMove*self.currentPage)-(self.eachLiWidth*self.numberOfImageMove))
+                },500,function(){
+                    //the callback function is called after finishing animation to show or hide the left and right 
+                    //arrows according to user click
+                    self.scrollHideAndShowPagination();
+                    if(typeof callback !== "undefined")
+                        callback();
+                });
+            }
+            //if Modulus is not equal to zero then this loop will execute i.e for images left after dividing it
+            //by numberofImagemove
+        } else {
+            //if the value of the clicked page is less than the total number of page then this loop will execute
+            //otherwise else will execute if the value of clicked page is equal to the total number of pages 
+            if(self.currentPage < self.totalPages){
+                $(self.container).animate({
+                    'left':"-"+((self.eachLiWidth*self.numberOfImageMove*self.currentPage)-(self.eachLiWidth*self.numberOfImageMove))
+                },500,function(){
+                    //the callback function is called after finishing animation to show or hide the left and right 
+                    //arrows according to user click
+                    self.scrollHideAndShowPagination();
+                    self.highlightPaging();
+                    if(typeof callback !== "undefined")
+                        callback();
+                });
+            } else {
+                $(self.container).animate({
+                    'left':"-"+((self.eachLiWidth*self.numberOfImageMove*self.currentPage)-(self.eachLiWidth*self.numberOfImageMove)-((self.numberOfImageMove - self.totalPagesMod)*self.eachLiWidth))
+                },500,function(){
+                    //the callback function is called after finishing animation to show or hide the left and right 
+                    //arrows according to user click
+                    self.scrollHideAndShowPagination();
+                    self.highlightPaging();
+                    if(typeof callback !== "undefined")
+                        callback();
+                });
+            } 
+        }
+    },
     nextButtonClick :function(){
         var self = this;
         self.currentPage++;
@@ -186,6 +211,7 @@ carousal.prototype = {
                 },500,function() {
                     //Callback function will execute after finishing animation.
                     self.scrollHideAndShowButtons();
+                    self.highlightPaging();
                 }); 
             }
         } else if(self.totalPagesMod != 0) {
@@ -197,6 +223,7 @@ carousal.prototype = {
                 },500,function() {
                     //Callback function will execute after finishing animation.
                     self.scrollHideAndShowButtons();
+                    self.highlightPaging();
                 }); 
             }else{
                 $(self.container).animate({
@@ -204,6 +231,7 @@ carousal.prototype = {
                 },500,function() {
                     //Callback function will execute after finishing animation.
                     self.scrollHideAndShowButtons();
+                    self.highlightPaging();
                 });    
             }
         }
@@ -222,6 +250,7 @@ carousal.prototype = {
                     //Callback function will execute after finishing animation.
                     console.log("self.currentPage =",self.currentPage)
                     self.scrollHideAndShowButtons();
+                    self.highlightPaging();
                 });
             }
         } else {
@@ -234,6 +263,7 @@ carousal.prototype = {
                 },500,function() {
                     //Callback function will execute after finishing animation.
                     self.scrollHideAndShowButtons();
+                    self.highlightPaging();
                 });
             } else {
                 self.currentPage--;
@@ -242,6 +272,7 @@ carousal.prototype = {
                 },500,function() {
                 //Callback function will execute after finishing animation.
                     self.scrollHideAndShowButtons();
+                    self.highlightPaging();
                 }); 
             }
         }
@@ -257,11 +288,17 @@ carousal.prototype = {
 
         //Next Button Click event
         $(self.nextButton+" img").click(function() {
-            self.nextButtonClick(); 
+            if(self.myTimer) {
+                clearInterval(self.myTimer);
+            }
+            self.nextButtonClick();
         });
 
         //Previous Button Click Event
         $(self.previousButton+" img").click(function(){
+            if(self.myTimer) {
+                clearInterval(self.myTimer);
+            }
             self.previousButtonClick();
         });
     }
@@ -276,6 +313,6 @@ $(document).ready(function() {
         "numberofpages":"#numofpages",
         "isPagingEnabled": true,
         "imagesPerPage":3,
-        "isAutoRotateEnabled": false
+        "isAutoRotateEnabled": true
     });
 });
