@@ -31,6 +31,8 @@ var carousal = function(kwargs) {
     this.currentPage = 1;
     //the value of the total pages is declared and defined as zero 
     this.totalPages = 0;
+
+    //it will check if is imagesPerPage is defined 
     if(typeof kwargs.imagesPerPage !== "undefined") {
         this.noOfImagesToShowInOnePage = kwargs.imagesPerPage;
     }
@@ -82,8 +84,13 @@ carousal.prototype = {
     autoRotate: function(){
         //Autorotate code for carousel
         var self = this;
+        //we will initialize current page with 2 because the page number one is already shown in carousel
+        //and if we will put page number 1 instead of 2 then for first animation it will take the double time
+        //as provided in setInterval function and here it will take 6seconds.
         self.currentPage = 2;
+        //setinterval function is used for setting a particular time interval for a particular function
         self.myTimer = setInterval(function(){
+            //if current page is last then it will move to the first page again
             if(self.currentPage > self.totalPages) {
                 self.currentPage = 1;
             }
@@ -93,6 +100,7 @@ carousal.prototype = {
         }, 3000);
     },
 
+    //this function is used to show and hide arrows according to pagination
     scrollHideAndShowPagination: function() {
         var self = this;
         if(self.currentPage >= self.totalPages){
@@ -107,6 +115,7 @@ carousal.prototype = {
         }
     },
 
+    //this function is used to show and hide arrows according to the click of next and previous buttons
     scrollHideAndShowButtons:function(){
         var self = this;
         if(self.currentPage == 1) {
@@ -123,6 +132,7 @@ carousal.prototype = {
         }
     },
 
+    //this function is used to hide the previous button when the html page is loaded
     hidePreviousButtonUpFront:function(){
         var self = this;
         if(self.currentPage == 1){
@@ -130,6 +140,7 @@ carousal.prototype = {
         }
     },
 
+    //this function is used to animate the carousel when we click on the page number in pagination
     pageClick :function(){
         var self = this;
         $(this.numberofpages+" a").click(function() {
@@ -141,15 +152,22 @@ carousal.prototype = {
             self.moveToPage();
         }); 
     },
+
+    //this function is used to highlight the page number which the user is viewing or it has been clicked by user
     highlightPaging: function() {
         var self = this;
         $(this.numberofpages+" a").removeClass("active");
         $(this.numberofpages+" a").each(function() {
+            console.log(self.numberofpages+" a");
+            console.log("$(this).html().trim()",$(this).html().trim());
             if($(this).html().trim() == self.currentPage) {
                 $(this).addClass("active");
             }
         });
     },
+
+    //this is the function which is used for animation according to the clicke page number 
+    //and it is also been used in autorotate for the animation when the page is loaded 
     moveToPage: function(pageNo, callback) {
         var self = this;
 
@@ -200,6 +218,8 @@ carousal.prototype = {
             } 
         }
     },
+
+    //this is used for the animation when user clicks on next button
     nextButtonClick :function(){
         var self = this;
         self.currentPage++;
@@ -238,6 +258,7 @@ carousal.prototype = {
         }
     },
 
+    //this is used for the anim,ation when user clicks on previous button
     previousButtonClick :function(){
         var self = this;
         //if Modulus is zero i.e if we divide number of images to move by the number of images to show in 
@@ -282,6 +303,8 @@ carousal.prototype = {
     //bindEvents Function
     bindEvents: function() {
         var self = this;
+
+        //function calling event for hiding the previous button when user loads an html page
         self.hidePreviousButtonUpFront();
 
         //paging click event
@@ -289,6 +312,8 @@ carousal.prototype = {
 
         //Next Button Click event
         $(self.nextButton+" img").click(function() {
+            //when user clicks on button the autorotate function will not be working by clearing interval 
+            //using clearInterval function
             if(self.myTimer) {
                 clearInterval(self.myTimer);
             }
@@ -297,6 +322,8 @@ carousal.prototype = {
 
         //Previous Button Click Event
         $(self.previousButton+" img").click(function(){
+            //when user clicks on button the autorotate function will not be working by clearing interval 
+            //using clearInterval function
             if(self.myTimer) {
                 clearInterval(self.myTimer);
             }
