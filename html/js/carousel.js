@@ -165,6 +165,7 @@ carousal.prototype = {
                     //the callback function is called after finishing animation to show or hide the left and right 
                     //arrows according to user click
                     self.scrollHideAndShowPagination();
+                    self.highlightPaging();
                     if(typeof callback !== "undefined")
                         callback();
                 });
