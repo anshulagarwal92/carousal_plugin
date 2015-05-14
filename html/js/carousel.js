@@ -158,9 +158,7 @@ carousal.prototype = {
         var self = this;
         $(this.numberofpages+" a").removeClass("active");
         $(this.numberofpages+" a").each(function() {
-            console.log(self.numberofpages+" a");
-            console.log("$(this).html().trim()",$(this).html().trim());
-            if($(this).html().trim() == self.currentPage) {
+            if($(this).html() == self.currentPage) {
                 $(this).addClass("active");
             }
         });
@@ -182,7 +180,6 @@ carousal.prototype = {
                 },500,function(){
                     //the callback function is called after finishing animation to show or hide the left and right 
                     //arrows according to user click
-                    self.scrollHideAndShowPagination();
                     self.highlightPaging();
                     if(typeof callback !== "undefined")
                         callback();
@@ -199,7 +196,6 @@ carousal.prototype = {
                 },500,function(){
                     //the callback function is called after finishing animation to show or hide the left and right 
                     //arrows according to user click
-                    self.scrollHideAndShowPagination();
                     self.highlightPaging();
                     if(typeof callback !== "undefined")
                         callback();
@@ -210,7 +206,6 @@ carousal.prototype = {
                 },500,function(){
                     //the callback function is called after finishing animation to show or hide the left and right 
                     //arrows according to user click
-                    self.scrollHideAndShowPagination();
                     self.highlightPaging();
                     if(typeof callback !== "undefined")
                         callback();
@@ -225,17 +220,21 @@ carousal.prototype = {
         self.currentPage++;
         //if Modulus is zero i.e if we divide number of images to move by the number of images to show in 
         //one page then if remainder is zero then this loop will execute otherwise else part will execute
-        if( self.totalPagesMod == 0){
-            if(self.currentPage <= self.totalPages ){
+        if( !self.totalPagesMod){
+            if(self.currentPage <=self.totalPages){
                 $(self.container).animate({
                     'left': "-="+self.eachLiWidth*self.numberOfImageMove
                 },500,function() {
                     //Callback function will execute after finishing animation.
-                    self.scrollHideAndShowButtons();
                     self.highlightPaging();
                 }); 
             }
-        } else if(self.totalPagesMod != 0) {
+            if(self.currentPage > self.totalPages){
+                self.currentPage = 1;
+                self.moveToPage(self.currentPage, function() {
+                });
+            }
+        } else{
             //if value of the page clicked i.e current page is less than the value of the total pages then
             //this will execute otherwise the else part will execute
             if(self.currentPage < self.totalPages ){
@@ -243,17 +242,27 @@ carousal.prototype = {
                     'left': "-="+self.eachLiWidth*self.numberOfImageMove
                 },500,function() {
                     //Callback function will execute after finishing animation.
-                    self.scrollHideAndShowButtons();
                     self.highlightPaging();
-                }); 
+                });
+                if(self.currentPage > self.totalPages){
+                    self.currentPage = 1;
+                    self.moveToPage(self.currentPage, function() {
+                    });
+                } 
             }else{
-                $(self.container).animate({
-                    'left': "-="+self.eachLiWidth*self.totalPagesMod
-                },500,function() {
-                    //Callback function will execute after finishing animation.
-                    self.scrollHideAndShowButtons();
-                    self.highlightPaging();
-                });    
+                if(self.currentPage == self.totalPages){
+                    $(self.container).animate({
+                        'left': "-="+self.eachLiWidth*self.totalPagesMod
+                    },500,function() {
+                        //Callback function will execute after finishing animation.
+                        self.highlightPaging();
+                    });
+                }
+                if(self.currentPage > self.totalPages){
+                    self.currentPage = 1;
+                    self.moveToPage(self.currentPage, function() {
+                    });
+                }     
             }
         }
     },
@@ -264,15 +273,18 @@ carousal.prototype = {
         //if Modulus is zero i.e if we divide number of images to move by the number of images to show in 
         //one page then if remainder is zero then this loop will execute otherwise else part will execute
         if(!self.totalPagesMod){
-            if(self.currentPage <= self.totalPages){
-                self.currentPage--;
+            self.currentPage--;
+            if(self.currentPage <= self.totalPages && self.currentPage >= 1){
                 $(self.container).animate({
                     'left':"+="+self.eachLiWidth*self.numberOfImageMove
                 },500,function() {
                     //Callback function will execute after finishing animation.
-                    console.log("self.currentPage =",self.currentPage)
-                    self.scrollHideAndShowButtons();
                     self.highlightPaging();
+                });
+            }
+            if(self.currentPage < 1) {
+                self.currentPage = self.totalPages;
+                self.moveToPage(self.currentPage, function() {
                 });
             }
         } else {
@@ -280,22 +292,30 @@ carousal.prototype = {
             //this will execute otherwise the else part will execute
             if(self.currentPage < self.totalPages){
                 self.currentPage--;
-                $(self.container).animate({
-                    'left':"+="+self.eachLiWidth*self.numberOfImageMove
-                },500,function() {
+                if(self.currentPage < self.totalPages && self.currentPage >= 1){
+                    $(self.container).animate({
+                        'left':"+="+self.eachLiWidth*self.numberOfImageMove
+                    },500,function() {
                     //Callback function will execute after finishing animation.
-                    self.scrollHideAndShowButtons();
                     self.highlightPaging();
-                });
+                    });
+                }
+                if( self.currentPage < 1){
+                    self.currentPage = self.totalPages;
+                    self.moveToPage(self.currentPage, function() {
+                    });
+                }
+                
             } else {
-                self.currentPage--;
-                $(self.container).animate({
-                    'left':"+="+self.eachLiWidth*self.totalPagesMod
-                },500,function() {
-                //Callback function will execute after finishing animation.
-                    self.scrollHideAndShowButtons();
+                if(self.currentPage == self.totalPages){
+                    $(self.container).animate({
+                        'left':"+="+self.eachLiWidth*self.totalPagesMod
+                    },500,function() {
+                    //Callback function will execute after finishing animation.
+                    self.currentPage--;
                     self.highlightPaging();
-                }); 
+                    }); 
+                } 
             }
         }
     },
@@ -303,9 +323,6 @@ carousal.prototype = {
     //bindEvents Function
     bindEvents: function() {
         var self = this;
-
-        //function calling event for hiding the previous button when user loads an html page
-        self.hidePreviousButtonUpFront();
 
         //paging click event
         self.pageClick();
