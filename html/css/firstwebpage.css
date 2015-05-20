@@ -91,7 +91,7 @@ h3,p {
     cursor: pointer;
     height: 100%;
     margin-bottom: -4px;
-    width: 100% 
+    width: 100%;
 }  
 
 #left_scroll, #right_scroll {  
@@ -147,8 +147,4 @@ h3,p {
 
 .active {
     color:red;
-}
-
-.carousel_ul1 {
-    left: -200px;
 }
