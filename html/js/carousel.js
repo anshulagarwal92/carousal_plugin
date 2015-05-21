@@ -40,7 +40,7 @@ var carousal = function(kwargs) {
 
     //the value of the total pages is declared and defined as zero 
     this.totalPages = 0;
-    this.currentPage1 =1;
+
     //it will check if is imagesPerPage is defined 
     if(typeof kwargs.imagesPerPage !== "undefined") {
         this.noOfImagesToShowInOnePage = kwargs.imagesPerPage;
@@ -80,6 +80,7 @@ carousal.prototype = {
 
     //Init function
     init: function() {
+        this.timer = 3000;
         //this will calculate the width of each image
         this.eachLiWidth = $(this.container+' li:first').width();
         this.left_indent = (this.eachLiWidth);
@@ -106,11 +107,10 @@ carousal.prototype = {
                 $(this.numberofpages).append('<a href="javascript:void(0)">'+i+'</a>');
             } 
         } else{
-            for(var i=1;i<=(this.totalPagesCircular);i++) {
-                //this is placing the number of pages in the anchor tag inside the div element in html
+            for(var i=1;i<=(this.totalPagesCircular);i++){
                 $(this.numberofpages).append('<a href="javascript:void(0)">'+i+'</a>');
             }
-        }
+        } 
     },
 
     autoRotateLinear: function(){
@@ -129,7 +129,7 @@ carousal.prototype = {
             self.moveToPagelinear(self.currentPage, function() {
                 self.currentPage++;
             });
-        }, 3000); 
+        }, this.timer); 
     },
 
     autorotateCircular:function(){
@@ -138,16 +138,24 @@ carousal.prototype = {
         //we will initialize current page with 2 because the page number one is already shown in carousel
         //and if we will put page number 1 instead of 2 then for first animation it will take the double time
         //as provided in setInterval function and here it will take 6seconds.
-        self.currentPage = 2;
+        self.currentPage = 1;
         self.myTimer = setInterval(function(){
-                //if current page is last then it will move to the first page again
-                if(self.currentPage > self.totalPagesCircular) {
+            //if current page is last then it will move to the first page again
+            if(self.currentPage > self.totalPagesCircular) {
+                self.currentPage = 1;
+            }
+            self.currentPage++;
+            $(self.container).animate({
+                'left':"-="+self.eachLiWidth
+            },500,function(){
+                $(self.container+' li:last').after($(self.container+' li:first'));
+                $(self.container).css({"left":-(self.left_indent)});
+                if(self.currentPage > self.totalPagesCircular){
                     self.currentPage = 1;
                 }
-                self.moveToPageCircular(self.currentPage, function() { 
-                    self.currentPage++;
-                });
-            }, 3000);
+                self.highlightPaging();
+            });    
+        }, this.timer);
     },
 
     //this function is used to animate the carousel when we click on the page number in pagination
@@ -160,19 +168,6 @@ carousal.prototype = {
             //in currentPage the value is taken from html page that on which page numbr user has clicked
             self.currentPage = parseInt($(this).html());
             self.moveToPagelinear();
-        }); 
-    },
-
-    pageClickCircular :function(){
-        var self = this;
-        $(this.numberofpages+" a").click(function() {
-            if(self.myTimer) {
-                clearInterval(self.myTimer);
-            }
-            //in currentPage the value is taken from html page that on which page numbr user has clicked
-            
-            self.currentPage = parseInt($(this).html());
-            self.moveToPageCircular();
         }); 
     },
 
@@ -235,26 +230,6 @@ carousal.prototype = {
                 });
             } 
         }
-    },
-
-    moveToPageCircular: function(pageNo, callback) {
-        var self = this;
-        if(typeof pageNo !== "undefined") {
-            this.currentPage = pageNo;
-        }
-        $(self.container).animate({
-            'left':"-"+((self.eachLiWidth*self.currentPage)-self.left_indent)
-        },500,function(){
-            //for(i=1;i <= self.currentPage-1 ;i++)
-            //$(self.container+' li:last').after($(self.container+' li:first'));
-            //$(self.container).css({"left":"0px"}); 
-            if(self.currentPage > self.totalPagesCircular){
-                self.currentPage =1;
-            }
-            self.highlightPaging();
-            if(typeof callback !== "undefined")
-                callback();
-        }); 
     },
 
     nextButtonClickCircular :function(){
@@ -399,19 +374,18 @@ carousal.prototype = {
         var self = this;
         if(typeof this.linear === "undefined" && !this.isLinear){
             $(self.container+' li:first').before($(self.container+' li:last'));
-            $(self.container).css({'left' :-(self.left_indent)});
+            $(self.container).css({'left' :-self.left_indent});
         }
         
         //paging click event
         if(typeof this.isLinear !== "undefined" && this.isLinear ){
             self.pageClickLinear();
-        } else{
-            self.pageClickCircular();
-        }
+        } 
+
         if(typeof this.isLinear === "undefined" && !this.isLinear ){
             $(self.nextButton+" img").click(function() {
-            //when user clicks on button the autorotate function will not be working by clearing interval 
-            //using clearInterval function
+                //when user clicks on button the autorotate function will not be working by clearing interval 
+                //using clearInterval function
                 if(self.myTimer) {
                     clearInterval(self.myTimer);
                 }
@@ -419,8 +393,8 @@ carousal.prototype = {
             });
         } else{
             $(self.nextButton+" img").click(function() {
-            //when user clicks on button the autorotate function will not be working by clearing interval 
-            //using clearInterval function
+                //when user clicks on button the autorotate function will not be working by clearing interval 
+                //using clearInterval function
                 if(self.myTimer) {
                     clearInterval(self.myTimer);
                 }
@@ -430,8 +404,8 @@ carousal.prototype = {
 
         if(typeof this.isLinear === "undefined" && !this.isLinear ){
             $(self.previousButton+" img").click(function() {
-            //when user clicks on button the autorotate function will not be working by clearing interval 
-            //using clearInterval function
+                //when user clicks on button the autorotate function will not be working by clearing interval 
+                //using clearInterval function
                 if(self.myTimer) {
                     clearInterval(self.myTimer);
                 }
@@ -439,12 +413,12 @@ carousal.prototype = {
             });
         } else{
             $(self.previousButton+" img").click(function() {
-            //when user clicks on button the autorotate function will not be working by clearing interval 
-            //using clearInterval function
+                //when user clicks on button the autorotate function will not be working by clearing interval 
+                //using clearInterval function
                 if(self.myTimer) {
                     clearInterval(self.myTimer);
                 }
-                self.previousButtonClicka(); 
+                self.previousButtonClickLinear(); 
             });
         }
     }
@@ -458,8 +432,8 @@ $(document).ready(function() {
         "previousButton": "#left_scroll",
         "numberofpages":"#numofpages",
         "isPagingEnabled": true,
-        "imagesPerPage":4,
-        "isAutoRotateEnabled": false,
-        "isLinear":false
+        "imagesPerPage":3,
+        "isAutoRotateEnabled": true,
+        "isLinear":true
     });
 });
